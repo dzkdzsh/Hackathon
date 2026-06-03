@@ -34,7 +34,7 @@ function CornerDecorations() {
   )
 }
 
-/* === 动态漂浮元素 === */
+/* === 动态漂浮元素（16个，3x 速度，带旋转） === */
 
 interface FloaterDef {
   emoji: string
@@ -45,22 +45,27 @@ interface FloaterDef {
   scale: number
   dur: number
   delay: number
+  rot: number[]
 }
 
 const FLOATERS: FloaterDef[] = [
-  { emoji: '✏️', startX: 8,  startY: 25, dx: 65, dy: -25, scale: 1.4, dur: 18, delay: 0 },
-  { emoji: '🎒', startX: 85, startY: 70, dx: -60, dy: -15, scale: 1.5, dur: 20, delay: 2 },
-  { emoji: '🐱', startX: 75, startY: 15, dx: -45, dy: 40,  scale: 1.3, dur: 16, delay: 4 },
-  { emoji: '💌', startX: 12, startY: 60, dx: 50, dy: -35, scale: 1.2, dur: 19, delay: 1 },
-  { emoji: '⭐', startX: 90, startY: 40, dx: -65, dy: 25,  scale: 1.3, dur: 14, delay: 5 },
-  { emoji: '🌸', startX: 50, startY: 85, dx: 25, dy: -55, scale: 1.2, dur: 22, delay: 1 },
-  { emoji: '🐦', startX: 30, startY: 10, dx: 55, dy: 18,  scale: 1.1, dur: 13, delay: 3 },
-  { emoji: '🌻', startX: 65, startY: 55, dx: -35, dy: -30, scale: 1.4, dur: 20, delay: 2 },
-  { emoji: '🦋', startX: 20, startY: 45, dx: 40, dy: -22,  scale: 1.1, dur: 12, delay: 6 },
-  { emoji: '📚', startX: 55, startY: 78, dx: -28, dy: -40, scale: 1.3, dur: 21, delay: 0 },
+  { emoji: '✏️', startX: 6,  startY: 20, dx: 55, dy: -22, scale: 1.4, dur: 6, delay: 0,   rot: [0, 18, -12, 8, 0] },
+  { emoji: '🎒', startX: 80, startY: 65, dx: -50, dy: -14, scale: 1.5, dur: 7, delay: 1,   rot: [0, -10, 15, -8, 0] },
+  { emoji: '🐱', startX: 70, startY: 12, dx: -40, dy: 35,  scale: 1.3, dur: 5, delay: 2,   rot: [0, -15, 10, -5, 0] },
+  { emoji: '💌', startX: 10, startY: 55, dx: 45, dy: -30, scale: 1.2, dur: 6, delay: 0,    rot: [0, 12, -18, 10, 0] },
+  { emoji: '⭐', startX: 86, startY: 38, dx: -55, dy: 20,  scale: 1.3, dur: 5, delay: 3,   rot: [0, 25, -20, 15, 0] },
+  { emoji: '🌸', startX: 48, startY: 80, dx: 20, dy: -48, scale: 1.2, dur: 7, delay: 1,    rot: [0, 15, -10, 5, 0] },
+  { emoji: '🐦', startX: 28, startY: 8,  dx: 46, dy: 16,  scale: 1.1, dur: 4, delay: 2,   rot: [0, -8, 12, -5, 0] },
+  { emoji: '🌻', startX: 62, startY: 52, dx: -30, dy: -26, scale: 1.4, dur: 7, delay: 0,   rot: [0, -12, 8, -5, 0] },
+  { emoji: '🦋', startX: 18, startY: 42, dx: 35, dy: -18,  scale: 1.1, dur: 4, delay: 3,   rot: [0, 10, -15, 8, 0] },
+  { emoji: '📚', startX: 52, startY: 74, dx: -22, dy: -35, scale: 1.3, dur: 7, delay: 1,   rot: [0, -5, 10, -5, 0] },
+  { emoji: '🍀', startX: 14, startY: 70, dx: 40, dy: -22, scale: 1.2, dur: 5, delay: 2,    rot: [0, 20, -15, 10, 0] },
+  { emoji: '🌷', startX: 74, startY: 28, dx: -38, dy: 14,  scale: 1.3, dur: 6, delay: 0,   rot: [0, -18, 10, -5, 0] },
+  { emoji: '🎵', startX: 38, startY: 14, dx: 30, dy: 22,  scale: 1.1, dur: 5, delay: 3,    rot: [0, 8, -10, 5, 0] },
+  { emoji: '🧸', startX: 58, startY: 68, dx: -24, dy: -28, scale: 1.4, dur: 7, delay: 0,   rot: [0, -15, 8, -5, 0] },
+  { emoji: '🫧', startX: 22, startY: 34, dx: 36, dy: -12,  scale: 1.0, dur: 4, delay: 2,   rot: [0, 5, -8, 5, 0] },
+  { emoji: '🍃', startX: 68, startY: 82, dx: -32, dy: -20, scale: 1.1, dur: 5, delay: 1,   rot: [0, -10, 15, -8, 0] },
 ]
-
-const PICKED = FLOATERS.sort(() => Math.random() - 0.5).slice(0, 8)
 
 /* === 心形粒子 === */
 
@@ -71,6 +76,56 @@ interface HeartParticle {
 }
 
 let heartId = 0
+
+/* === 害羞小猫 === */
+
+function ShyCat() {
+  const [state, setState] = useState<'idle' | 'fleeing' | 'returning'>('idle')
+
+  const handleEnter = () => {
+    if (state === 'idle') {
+      setState('fleeing')
+      setTimeout(() => setState('returning'), 1000)
+      setTimeout(() => setState('idle'), 3500)
+    }
+  }
+
+  let className = 'side-cat'
+  if (state === 'fleeing') className += ' cat-flee'
+  else if (state === 'returning') className += ' cat-return'
+
+  return (
+    <div className={className} onMouseEnter={handleEnter} title="喵~">
+      <span className="cat-body">🐈</span>
+    </div>
+  )
+}
+
+/* === 侧边装饰 === */
+
+function SideDecorations() {
+  return (
+    <div className="side-decorations" aria-hidden="true">
+      <div className="side-item side-chime side-chime-left" style={{ top: '12%' }}>
+        <span className="chime-string">|</span>
+        <span className="chime-body">🎐</span>
+      </div>
+      <div className="side-item side-chime side-chime-right" style={{ top: '18%' }}>
+        <span className="chime-string">|</span>
+        <span className="chime-body">🎐</span>
+      </div>
+      <div className="side-item side-grass-left" style={{ bottom: '10%' }}>
+        <span className="grass-body">🌿</span>
+      </div>
+      <div className="side-item side-grass-right" style={{ bottom: '6%' }}>
+        <span className="grass-body">🌱</span>
+      </div>
+      <ShyCat />
+    </div>
+  )
+}
+
+/* === 主组件 === */
 
 export default function Decorations() {
   const [mounted, setMounted] = useState(false)
@@ -85,15 +140,9 @@ export default function Decorations() {
   }, [])
 
   const spawnHeart = useCallback((e: React.MouseEvent) => {
-    const h: HeartParticle = {
-      id: ++heartId,
-      x: e.clientX,
-      y: e.clientY,
-    }
+    const h: HeartParticle = { id: ++heartId, x: e.clientX, y: e.clientY }
     setHearts(prev => [...prev.slice(-20), h])
-    setTimeout(() => {
-      setHearts(prev => prev.filter(p => p.id !== h.id))
-    }, 1500)
+    setTimeout(() => setHearts(prev => prev.filter(p => p.id !== h.id)), 1500)
   }, [])
 
   return (
@@ -103,20 +152,19 @@ export default function Decorations() {
 
       {mounted && (
         <>
-          {PICKED.map((f, i) => (
+          {FLOATERS.map((f, i) => (
             <motion.button
-              key={f.emoji + i}
+              key={`f${i}`}
               className="floater"
               style={{
                 left: `${f.startX}%`,
                 top: `${f.startY}%`,
-                fontSize: `${f.scale * 36}px`,
               }}
-              initial={{ x: 0, y: 0, opacity: 0.22 }}
+              initial={{ x: 0, y: 0, rotate: f.rot[0] }}
               animate={{
                 x: [0, f.dx * 0.5, f.dx, f.dx * 0.6, 0],
                 y: [0, f.dy * 0.5, f.dy, f.dy * 0.6, 0],
-                opacity: [0.22, 0.32, 0.22, 0.30, 0.22],
+                rotate: f.rot,
               }}
               transition={{
                 duration: f.dur,
@@ -126,13 +174,15 @@ export default function Decorations() {
                 times: [0, 0.25, 0.5, 0.75, 1],
               }}
               onClick={spawnHeart}
-              whileHover={{ opacity: 0.7 }}
-              whileTap={{ opacity: 0.9 }}
               aria-label="点击互动"
             >
-              {f.emoji}
+              <span className="floater-emoji" style={{ fontSize: `${f.scale * 36}px` }}>
+                {f.emoji}
+              </span>
             </motion.button>
           ))}
+
+          <SideDecorations />
 
           <AnimatePresence>
             {hearts.map(h => (

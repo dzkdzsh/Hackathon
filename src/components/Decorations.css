@@ -59,9 +59,29 @@
   background: none;
   border: none;
   cursor: pointer;
-  line-height: 1;
   padding: 6px;
   border-radius: 50%;
+  opacity: 0.22;
+  transition: opacity 0.2s;
+}
+
+.floater:hover {
+  opacity: 0.55;
+}
+
+/* inner span handles scale — avoids transform conflict with framer-motion */
+.floater-emoji {
+  display: inline-block;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.floater:hover .floater-emoji {
+  transform: scale(1.7);
+}
+
+.floater:active .floater-emoji {
+  transform: scale(0.8);
 }
 
 @media (max-width: 500px) {
@@ -76,4 +96,116 @@
   font-size: 22px;
   line-height: 1;
   pointer-events: none;
+}
+
+/* === Side decorations === */
+
+.side-item {
+  position: fixed;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+@media (max-width: 900px) {
+  .side-item { display: none; }
+}
+
+/* --- Wind chimes --- */
+
+.side-chime-left  { left: 12px; }
+.side-chime-right { right: 12px; }
+
+.chime-string {
+  display: block;
+  text-align: center;
+  font-size: 16px;
+  color: var(--ink-light);
+  opacity: 0.35;
+  line-height: 0.6;
+  user-select: none;
+}
+
+.chime-body {
+  display: block;
+  font-size: 38px;
+  line-height: 1;
+  cursor: pointer;
+  transform-origin: top center;
+  transition: transform 0.15s;
+  user-select: none;
+}
+
+.side-chime:hover .chime-body {
+  animation: chime-sway 0.7s ease-in-out infinite;
+}
+
+@keyframes chime-sway {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(12deg); }
+  75% { transform: rotate(-10deg); }
+}
+
+/* --- Grass --- */
+
+.side-grass-left  { left: 14px; cursor: pointer; }
+.side-grass-right { right: 14px; cursor: pointer; }
+
+.grass-body {
+  display: block;
+  font-size: 36px;
+  line-height: 1;
+  transform-origin: bottom center;
+  transition: transform 0.15s;
+  user-select: none;
+}
+
+.side-grass-left:hover .grass-body,
+.side-grass-right:hover .grass-body {
+  animation: grass-bend 0.8s ease-in-out infinite;
+}
+
+@keyframes grass-bend {
+  0%, 100% { transform: rotate(0deg) skew(0deg); }
+  30% { transform: rotate(15deg) skew(-3deg); }
+  70% { transform: rotate(-12deg) skew(3deg); }
+}
+
+/* --- Shy cat --- */
+
+.side-cat {
+  position: fixed;
+  z-index: 2;
+  right: 18px;
+  bottom: 28%;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: right 0.4s ease-in, opacity 0.3s;
+}
+
+.cat-body {
+  display: inline-block;
+  font-size: 38px;
+  line-height: 1;
+  user-select: none;
+  transition: transform 0.2s;
+}
+
+.side-cat:hover .cat-body {
+  transform: scale(1.2);
+}
+
+.side-cat.cat-flee {
+  right: -60px;
+  opacity: 0.6;
+  transition: right 0.4s cubic-bezier(0.4, 0, 1, 1), opacity 0.3s;
+}
+
+.side-cat.cat-return {
+  right: 18px;
+  opacity: 1;
+  transition: right 2.5s cubic-bezier(0.1, 0.5, 0.2, 1), opacity 1.5s;
+}
+
+@media (max-width: 900px) {
+  .side-cat { display: none; }
 }
