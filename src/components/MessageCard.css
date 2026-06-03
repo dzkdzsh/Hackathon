@@ -27,17 +27,22 @@
   transition: width 0.25s;
 }
 
-/* 右上角邮票 */
+/* 右上角蜡封 */
 .message-card::after {
   content: '';
   position: absolute;
-  right: 16px;
-  top: 14px;
-  width: 36px;
-  height: 42px;
-  border: 2px dashed rgba(74, 55, 40, 0.10);
-  border-radius: 2px;
+  right: 14px;
+  top: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--seal);
+  opacity: 0.12;
   pointer-events: none;
+}
+
+.message-card:hover::after {
+  opacity: 0.2;
 }
 
 .message-card:hover {
