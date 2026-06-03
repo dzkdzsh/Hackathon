@@ -18,7 +18,7 @@ const typeColors: Record<StudentType, string> = {
 
 export default function MessageDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const { messages, addReply } = useMessages()
+  const { messages, addReply, toggleLike, toggleReplyLike } = useMessages()
   const message = messages.find(m => m.id === id)
 
   if (!message) return <EmptyDetail />
@@ -38,7 +38,9 @@ export default function MessageDetailPage() {
         <ArrowLeft size={16} /> 返回留言板
       </Link>
 
-      <LetterDisplay message={message} />
+      <LetterDisplay message={message} onLike={() => toggleLike(message.id)} />
+
+      <ReplyForm onSubmitted={handleReplySubmit} />
 
       {message.replies.length > 0 && (
         <div className="replies-section">
@@ -46,21 +48,22 @@ export default function MessageDetailPage() {
             <MessageCircle size={18} /> {message.replies.length} 条回复
           </h3>
           {message.replies.map((reply, i) => (
-            <ReplyCard key={i} reply={reply} index={i} />
+            <ReplyCard
+              key={i}
+              reply={reply}
+              index={i}
+              onLike={() => toggleReplyLike(message.id, i)}
+            />
           ))}
         </div>
       )}
-
-      <ReplyForm onSubmitted={handleReplySubmit} />
     </motion.div>
   )
 }
 
-function LetterDisplay({ message }: { message: ReturnType<typeof useMessages>['messages'][number] }) {
+function LetterDisplay({ message, onLike }: { message: ReturnType<typeof useMessages>['messages'][number]; onLike: () => void }) {
   const date = new Date(message.createdAt).toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    year: 'numeric', month: 'long', day: 'numeric',
   })
 
   return (
@@ -84,15 +87,17 @@ function LetterDisplay({ message }: { message: ReturnType<typeof useMessages>['m
           <p key={i} className="letter-line">{line || ' '}</p>
         ))}
       </div>
+
+      <button className="like-btn" onClick={onLike}>
+        <Heart size={15} /> {message.likes}
+      </button>
     </article>
   )
 }
 
-function ReplyCard({ reply, index }: { reply: ReturnType<typeof useMessages>['messages'][number]['replies'][number]; index: number }) {
+function ReplyCard({ reply, index, onLike }: { reply: ReturnType<typeof useMessages>['messages'][number]['replies'][number]; index: number; onLike: () => void }) {
   const date = new Date(reply.createdAt).toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    year: 'numeric', month: 'long', day: 'numeric',
   })
 
   return (
@@ -100,11 +105,16 @@ function ReplyCard({ reply, index }: { reply: ReturnType<typeof useMessages>['me
       className="reply-section paper-card"
       initial={{ opacity: 0, x: -16 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.08, 0.3) }}
+      transition={{ duration: 0.35, delay: Math.min(index * 0.06, 0.2) }}
     >
-      <div className="reply-label">
-        <Heart size={16} fill="var(--seal)" stroke="var(--seal)" />
-        回信 #{index + 1}
+      <div className="reply-header">
+        <div className="reply-label">
+          <Heart size={16} fill="var(--seal)" stroke="var(--seal)" />
+          回信 #{index + 1}
+        </div>
+        <button className="like-btn" onClick={onLike}>
+          <Heart size={14} /> {reply.likes}
+        </button>
       </div>
       <p className="reply-meta">
         {typeLabels[reply.type]} · {reply.senderName} · {date}

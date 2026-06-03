@@ -5,8 +5,10 @@ const STORAGE_KEY = 'xinxinxin_messages'
 
 interface MessagesContextValue {
   messages: Message[]
-  addMessage: (msg: Omit<Message, 'id' | 'createdAt' | 'replies'>) => void
-  addReply: (id: string, reply: Omit<Reply, 'createdAt'>) => void
+  addMessage: (msg: Omit<Message, 'id' | 'createdAt' | 'replies' | 'likes'>) => void
+  addReply: (id: string, reply: Omit<Reply, 'createdAt' | 'likes'>) => void
+  toggleLike: (id: string) => void
+  toggleReplyLike: (id: string, replyIndex: number) => void
 }
 
 const MessagesContext = createContext<MessagesContextValue | null>(null)
@@ -14,14 +16,24 @@ const MessagesContext = createContext<MessagesContextValue | null>(null)
 function migrateData(raw: unknown): Message[] {
   if (!Array.isArray(raw)) return []
   return raw.map((item: Record<string, unknown>) => {
-    // if already has replies array, it's new format
-    if (Array.isArray(item.replies)) return item as Message
-    // old format: reply is a single object -> wrap in replies array
-    if (item.reply && typeof item.reply === 'object') {
-      return { ...item, replies: [item.reply], reply: undefined } as Message
+    let replies: Reply[] = []
+    if (Array.isArray(item.replies)) {
+      replies = item.replies as Reply[]
+    } else if (item.reply && typeof item.reply === 'object') {
+      replies = [item.reply as Reply]
     }
-    // no replies at all
-    return { ...item, replies: [] as Reply[] } as Message
+
+    // ensure every reply has likes
+    replies = replies.map((r: Record<string, unknown>) =>
+      typeof r.likes === 'number' ? (r as Reply) : { ...r, likes: 0 } as Reply
+    )
+
+    return {
+      ...item,
+      likes: typeof item.likes === 'number' ? item.likes : 0,
+      replies,
+      reply: undefined,
+    } as Message
   })
 }
 
@@ -32,7 +44,6 @@ function loadMessages(): Message[] {
       const parsed = JSON.parse(raw)
       const migrated = migrateData(parsed)
       if (migrated.length > 0) {
-        // write back migrated data immediately
         localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
         return migrated
       }
@@ -53,12 +64,14 @@ function seedMessages(): Message[] {
       title: '我想成为一名宇航员！',
       content: '大学生哥哥姐姐你们好，\n\n我今年上四年级，最喜欢科学课。老师说宇宙里有 billions of galaxies，太神奇了！\n\n我想知道：当宇航员在太空里怎么洗澡呀？还有，他们能看到星星更亮的样子吗？\n\n希望有人能回我！\n\n你们的：小星星',
       createdAt: new Date(now.getTime() - 86400000 * 2).toISOString(),
+      likes: 5,
       replies: [
         {
           type: 'college',
           senderName: '学长阿远',
           content: '小星星同学你好！\n\n你梦想成为宇航员的想法太棒了！关于你的问题：\n\n1. 太空里没有水会往下流，所以宇航员是用一种特殊的免洗洗发水和湿巾洗澡的。\n2. 在太空中（比如国际空间站里），因为经常能看到地球，反而不容易看到星星——因为地球会挡住一部分天空。但是出舱活动的时候，确实能看到超级亮的星星！\n\n加油学习科学知识，未来可期！\n\n阿远学长',
           createdAt: new Date(now.getTime() - 86400000 * 1.5).toISOString(),
+          likes: 3,
         },
       ],
     },
@@ -69,12 +82,14 @@ function seedMessages(): Message[] {
       title: '考试考砸了怎么办',
       content: '哥哥姐姐们：\n\n这次期中考试我数学没考好，才78分。妈妈没有骂我，但我自己很难过。\n\n我明明已经很努力了，为什么还是考不好？是不是我不够聪明啊？\n\n你们小时候也会考砸吗？',
       createdAt: new Date(now.getTime() - 86400000).toISOString(),
+      likes: 8,
       replies: [
         {
           type: 'college',
           senderName: '学姐小葵',
           content: '亲爱的小雨：\n\n学姐想告诉你，我小时候也考砸过，有一次我还把试卷藏起来了，不敢给妈妈看。\n\n但是你知道吗？考试不是为了证明你聪不聪明，而是帮你找到哪里没学会。\n\n78分说明你已经掌握了78分的内容，还有22分是你接下来可以进步的空间呀！\n\n建议你准备一个小错题本，把做错的题抄下来，分析为什么错，下次就不会再错了。\n\n你很棒，继续加油！\n\n小葵学姐',
           createdAt: new Date(now.getTime() - 86400000 * 0.5).toISOString(),
+          likes: 4,
         },
       ],
     },
@@ -85,12 +100,14 @@ function seedMessages(): Message[] {
       title: '写给小学生的话',
       content: '亲爱的小学生们：\n\n我是一名刚上大学的新生。想到自己还在小学的时候，有很多哥哥姐姐给我写信鼓励我，我也想把温暖传递给你们。\n\n无论你现在遇到什么困难——不管是学习上的还是和朋友之间的矛盾——都要相信时间会慢慢解决的。\n\n好好学习，大学的世界很有趣！你们值得拥有美好的未来！',
       createdAt: new Date(now.getTime() - 3600000 * 6).toISOString(),
+      likes: 3,
       replies: [
         {
           type: 'primary',
           senderName: '小太阳',
           content: '哥哥你好！我看到你的信了，谢谢你的鼓励！\n\n我现在三年级，我觉得学习很有趣！我最喜欢语文课，喜欢读故事。\n\n大学里有什么好玩的事情呀？我也希望快点长大上大学！\n\n小太阳',
           createdAt: new Date(now.getTime() - 3600000 * 3).toISOString(),
+          likes: 2,
         },
       ],
     },
@@ -108,28 +125,52 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     saveMessages(messages)
   }, [messages])
 
-  const addMessage = (msg: Omit<Message, 'id' | 'createdAt' | 'replies'>) => {
+  const addMessage = (msg: Omit<Message, 'id' | 'createdAt' | 'replies' | 'likes'>) => {
     const newMsg: Message = {
       ...msg,
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
       createdAt: new Date().toISOString(),
+      likes: 0,
       replies: [],
     }
     setMessages(prev => [newMsg, ...prev])
   }
 
-  const addReply = (id: string, reply: Omit<Reply, 'createdAt'>) => {
+  const addReply = (id: string, reply: Omit<Reply, 'createdAt' | 'likes'>) => {
     setMessages(prev =>
       prev.map(m =>
         m.id === id
-          ? { ...m, replies: [...m.replies, { ...reply, createdAt: new Date().toISOString() }] }
+          ? { ...m, replies: [...m.replies, { ...reply, likes: 0, createdAt: new Date().toISOString() }] }
+          : m
+      )
+    )
+  }
+
+  const toggleLike = (id: string) => {
+    setMessages(prev =>
+      prev.map(m =>
+        m.id === id ? { ...m, likes: m.likes + 1 } : m
+      )
+    )
+  }
+
+  const toggleReplyLike = (id: string, replyIndex: number) => {
+    setMessages(prev =>
+      prev.map(m =>
+        m.id === id
+          ? {
+              ...m,
+              replies: m.replies.map((r, i) =>
+                i === replyIndex ? { ...r, likes: r.likes + 1 } : r
+              ),
+            }
           : m
       )
     )
   }
 
   return (
-    <MessagesContext.Provider value={{ messages, addMessage, addReply }}>
+    <MessagesContext.Provider value={{ messages, addMessage, addReply, toggleLike, toggleReplyLike }}>
       {children}
     </MessagesContext.Provider>
   )

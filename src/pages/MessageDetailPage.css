@@ -98,7 +98,39 @@
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--seal);
+}
+
+.reply-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
+}
+
+/* --- like button --- */
+
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(196, 75, 82, 0.2);
+  background: rgba(196, 75, 82, 0.04);
+  color: var(--seal);
+  cursor: pointer;
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 0.85rem;
+  padding: 5px 12px;
+  border-radius: 16px;
+  transition: all 0.15s;
+}
+
+.like-btn:hover {
+  background: rgba(196, 75, 82, 0.12);
+  border-color: var(--seal);
+}
+
+.like-btn:active {
+  transform: scale(0.95);
 }
 
 .reply-meta {

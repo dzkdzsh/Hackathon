@@ -88,6 +88,32 @@
   font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
 }
 
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.like-btn-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  color: var(--ink-light);
+  cursor: pointer;
+  font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 14px;
+  transition: all 0.15s;
+}
+
+.like-btn-card:hover {
+  color: var(--seal);
+  background: rgba(196, 75, 82, 0.06);
+}
+
 .card-arrow {
   color: var(--ink-light);
   transition: transform 0.2s;

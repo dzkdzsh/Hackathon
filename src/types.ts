@@ -5,6 +5,7 @@ export interface Reply {
   senderName: string
   content: string
   createdAt: string
+  likes: number
 }
 
 export interface Message {
@@ -14,5 +15,6 @@ export interface Message {
   title: string
   content: string
   createdAt: string
+  likes: number
   replies: Reply[]
 }
