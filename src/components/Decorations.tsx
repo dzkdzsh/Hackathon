@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence, useSpring, useAnimationFrame } from 'framer-motion'
 import './Decorations.css'
 
@@ -34,68 +34,87 @@ function CornerDecorations() {
   )
 }
 
-/* === 漂浮元素池（16 个） === */
+/* === 漂浮元素池（16 个，每个带独特轨道参数） === */
 
 interface FloaterInit {
   emoji: string
   startX: number
   startY: number
   scale: number
+  orbA: number   // 轨道 X 幅值
+  orbB: number   // 轨道 Y 幅值
+  orbW: number   // 轨道频率
+  orbP: number   // 相位偏移
 }
 
 const FLOATERS: FloaterInit[] = [
-  { emoji: '✏️', startX: 6,  startY: 20, scale: 1.4 },
-  { emoji: '🎒', startX: 80, startY: 65, scale: 1.5 },
-  { emoji: '🐱', startX: 70, startY: 12, scale: 1.3 },
-  { emoji: '💌', startX: 10, startY: 55, scale: 1.2 },
-  { emoji: '⭐', startX: 86, startY: 38, scale: 1.3 },
-  { emoji: '🌸', startX: 48, startY: 80, scale: 1.2 },
-  { emoji: '🐦', startX: 28, startY: 8,  scale: 1.1 },
-  { emoji: '🌻', startX: 62, startY: 52, scale: 1.4 },
-  { emoji: '🦋', startX: 18, startY: 42, scale: 1.1 },
-  { emoji: '📚', startX: 52, startY: 74, scale: 1.3 },
-  { emoji: '🍀', startX: 14, startY: 70, scale: 1.2 },
-  { emoji: '🌷', startX: 74, startY: 28, scale: 1.3 },
-  { emoji: '🎵', startX: 38, startY: 14, scale: 1.1 },
-  { emoji: '🧸', startX: 58, startY: 68, scale: 1.4 },
-  { emoji: '🫧', startX: 22, startY: 34, scale: 1.0 },
-  { emoji: '🍃', startX: 68, startY: 82, scale: 1.1 },
+  { emoji: '✏️', startX: 6,  startY: 20, scale: 1.4, orbA: 55, orbB: 35, orbW: 0.8, orbP: 0 },
+  { emoji: '🎒', startX: 80, startY: 65, scale: 1.5, orbA: 45, orbB: 60, orbW: 0.6, orbP: 1.2 },
+  { emoji: '🐱', startX: 70, startY: 12, scale: 1.3, orbA: 65, orbB: 40, orbW: 0.7, orbP: 2.5 },
+  { emoji: '💌', startX: 10, startY: 55, scale: 1.2, orbA: 40, orbB: 55, orbW: 0.9, orbP: 0.8 },
+  { emoji: '⭐', startX: 86, startY: 38, scale: 1.3, orbA: 50, orbB: 45, orbW: 0.75, orbP: 3.1 },
+  { emoji: '🌸', startX: 48, startY: 80, scale: 1.2, orbA: 58, orbB: 30, orbW: 0.55, orbP: 1.7 },
+  { emoji: '🐦', startX: 28, startY: 8,  scale: 1.1, orbA: 70, orbB: 50, orbW: 1.0, orbP: 0.3 },
+  { emoji: '🌻', startX: 62, startY: 52, scale: 1.4, orbA: 42, orbB: 62, orbW: 0.65, orbP: 2.0 },
+  { emoji: '🦋', startX: 18, startY: 42, scale: 1.1, orbA: 48, orbB: 38, orbW: 1.1, orbP: 1.5 },
+  { emoji: '📚', startX: 52, startY: 74, scale: 1.3, orbA: 35, orbB: 50, orbW: 0.5,  orbP: 3.8 },
+  { emoji: '🍀', startX: 14, startY: 70, scale: 1.2, orbA: 60, orbB: 35, orbW: 0.85, orbP: 2.3 },
+  { emoji: '🌷', startX: 74, startY: 28, scale: 1.3, orbA: 38, orbB: 58, orbW: 0.7,  orbP: 0.5 },
+  { emoji: '🎵', startX: 38, startY: 14, scale: 1.1, orbA: 52, orbB: 44, orbW: 0.95, orbP: 3.4 },
+  { emoji: '🧸', startX: 58, startY: 68, scale: 1.4, orbA: 30, orbB: 55, orbW: 0.6,  orbP: 1.9 },
+  { emoji: '🫧', startX: 22, startY: 34, scale: 1.0, orbA: 44, orbB: 28, orbW: 1.2,  orbP: 2.8 },
+  { emoji: '🍃', startX: 68, startY: 82, scale: 1.1, orbA: 56, orbB: 42, orbW: 0.72, orbP: 0.2 },
 ]
 
-/* === 布朗运动漂浮者 === */
+/* === 布朗 + 弧形轨道 漂浮者 === */
 
-function BrownianFloater({ emoji, startX, startY, scale, onClick }: FloaterInit & { onClick: (e: React.MouseEvent) => void }) {
-  const mx = useSpring(0, { stiffness: 0.5, damping: 0.2 })
-  const my = useSpring(0, { stiffness: 0.5, damping: 0.2 })
-  const mr = useSpring(0, { stiffness: 0.4, damping: 0.18 })
+function BrownianFloater({ emoji, startX, startY, scale, orbA, orbB, orbW, orbP, onClick }: FloaterInit & { onClick: (e: React.MouseEvent) => void }) {
+  const mx = useSpring(0, { stiffness: 0.4, damping: 0.22 })
+  const my = useSpring(0, { stiffness: 0.4, damping: 0.22 })
+  const mr = useSpring(0, { stiffness: 0.35, damping: 0.2 })
 
   const vx = useRef(0)
   const vy = useRef(0)
   const vr = useRef(0)
-  const tick = useRef(0)
+  const elapsed = useRef(0)
 
   useAnimationFrame((_, delta) => {
-    tick.current += delta
-    const interval = 160
-    if (tick.current < interval) return
-    tick.current -= interval
+    elapsed.current += delta * 0.001 // seconds
+    const t = elapsed.current
+    const interval = 170
+    // track a sub-tick counter; use it for brownian kicks
+    const prevTick = Math.floor((t * 1000) / interval)
 
-    const cx = mx.get()
-    const cy = my.get()
-    const cr = mr.get()
+    vx.current += (Math.random() - 0.5) * 120 * (delta / interval)
+    vy.current += (Math.random() - 0.5) * 90 * (delta / interval)
+    vr.current += (Math.random() - 0.5) * 80 * (delta / interval)
 
-    vx.current += (Math.random() - 0.5) * 140
-    vy.current += (Math.random() - 0.5) * 110
-    vr.current += (Math.random() - 0.5) * 90
+    vx.current *= 0.955
+    vy.current *= 0.955
+    vr.current *= 0.955
 
-    // 几乎不衰减，动量持续
-    vx.current *= 0.97
-    vy.current *= 0.97
-    vr.current *= 0.97
+    const bx = mx.get()
+    const by = my.get()
+    const br = mr.get()
 
-    mx.set(cx + vx.current)
-    my.set(cy + vy.current)
-    mr.set(cr + vr.current)
+    // 弧形轨道：利萨如曲线
+    const orbitX = orbA * Math.sin(orbW * t + orbP)
+    const orbitY = orbB * Math.cos(orbW * t + orbP + 0.7)
+
+    // 软归心力：超过 150px 开始拉回，力度平方增长
+    const dist = Math.sqrt(bx * bx + by * by)
+    const homeR = 150
+    let homeFx = 0, homeFy = 0
+    if (dist > homeR) {
+      const over = (dist - homeR) / homeR // 0..1+
+      const strength = over * over * 3
+      homeFx = (bx / dist) * -strength
+      homeFy = (by / dist) * -strength
+    }
+
+    mx.set(orbitX + bx + vx.current + homeFx)
+    my.set(orbitY + by + vy.current + homeFy)
+    mr.set(br + vr.current)
   })
 
   return (
