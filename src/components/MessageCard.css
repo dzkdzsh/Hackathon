@@ -1,0 +1,99 @@
+.message-card {
+  display: block;
+  background: var(--paper);
+  border-radius: 10px;
+  box-shadow:
+    0 1px 3px var(--shadow),
+    0 4px 12px var(--shadow);
+  padding: 0;
+  margin-bottom: 16px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+  border: 1px solid rgba(74, 55, 40, 0.06);
+}
+
+.message-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 6px var(--shadow),
+    0 8px 20px var(--shadow-lg);
+  text-decoration: none;
+}
+
+.card-accent {
+  height: 4px;
+  width: 100%;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px 4px;
+  gap: 8px;
+}
+
+.card-badge {
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 12px;
+  border: 1.5px solid;
+}
+
+.card-replied-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--seal);
+  background: rgba(196, 75, 82, 0.06);
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.card-date {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
+  margin-left: auto;
+}
+
+.card-title {
+  font-size: 1.15rem;
+  padding: 6px 20px;
+  font-weight: 600;
+}
+
+.card-preview {
+  font-size: 0.95rem;
+  color: var(--ink-light);
+  padding: 0 20px;
+  line-height: 1.7;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 16px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(74, 55, 40, 0.05);
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
+}
+
+.card-arrow {
+  color: var(--ink-light);
+  transition: transform 0.2s;
+}
+
+.message-card:hover .card-arrow {
+  transform: translateX(3px);
+  color: var(--seal);
+}

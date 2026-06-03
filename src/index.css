@@ -1,0 +1,83 @@
+/* === Design Tokens === */
+:root {
+  --paper: #FFFDF7;
+  --paper-dark: #F5F0E8;
+  --ink: #4A3728;
+  --ink-light: #7A6655;
+  --rose: #E8A0BF;
+  --sky: #7BB8D4;
+  --envelope: #F0E0D0;
+  --stamp: #D4845A;
+  --stamp-hover: #C07045;
+  --seal: #C44B52;
+  --seal-hover: #A83A40;
+  --shadow: rgba(74, 55, 40, 0.08);
+  --shadow-lg: rgba(74, 55, 40, 0.14);
+}
+
+/* === Reset === */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: 'Georgia', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  background-color: var(--paper);
+  color: var(--ink);
+  line-height: 1.8;
+  min-height: 100vh;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(74, 55, 40, 0.03) 27px,
+      rgba(74, 55, 40, 0.03) 28px
+    );
+}
+
+#root {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* === Typography === */
+h1, h2, h3, h4 {
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+a {
+  color: var(--seal);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* === Utility === */
+.container {
+  padding: 24px 0;
+}
+
+.paper-card {
+  background: var(--paper);
+  border-radius: 10px;
+  box-shadow:
+    0 1px 3px var(--shadow),
+    0 4px 12px var(--shadow);
+  padding: 24px;
+  border: 1px solid rgba(74, 55, 40, 0.06);
+}

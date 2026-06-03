@@ -1,0 +1,41 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 24px;
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-seal {
+  background: var(--seal);
+  color: #fff;
+}
+
+.btn-seal:hover {
+  background: var(--seal-hover);
+  text-decoration: none;
+  color: #fff;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--stamp);
+  border: 2px solid var(--stamp);
+}
+
+.btn-outline:hover {
+  background: var(--stamp);
+  color: #fff;
+  text-decoration: none;
+}

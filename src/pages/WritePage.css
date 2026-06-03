@@ -1,0 +1,102 @@
+.write-page {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  font-size: 1.6rem;
+}
+
+.letter-form {
+  padding: 32px;
+}
+
+.type-selector {
+  margin-bottom: 24px;
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.type-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.type-btn {
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 2px solid;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.type-btn:hover {
+  opacity: 0.8;
+}
+
+.form-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid rgba(74, 55, 40, 0.15);
+  border-radius: 8px;
+  font-family: 'Georgia', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--ink);
+  background: #FFFEF9;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--stamp);
+  box-shadow: 0 0 0 3px rgba(212, 132, 90, 0.12);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 200px;
+}
+
+.form-error {
+  color: var(--seal);
+  background: rgba(196, 75, 82, 0.06);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 0.9rem;
+}
+
+.btn-stamp {
+  margin-top: 8px;
+  width: 100%;
+  justify-content: center;
+  padding: 14px 32px;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  background: var(--seal);
+}
+
+.btn-stamp:hover {
+  background: var(--seal-hover);
+}
