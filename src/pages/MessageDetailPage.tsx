@@ -38,25 +38,42 @@ export default function MessageDetailPage() {
         <ArrowLeft size={16} /> 返回留言板
       </Link>
 
-      <LetterDisplay message={message} onLike={() => toggleLike(message.id)} />
+      <div className="detail-layout">
+        {/* 左栏：原信 + 回复列表 */}
+        <div className="detail-left">
+          <LetterDisplay message={message} onLike={() => toggleLike(message.id)} />
 
-      <ReplyForm onSubmitted={handleReplySubmit} />
+          {message.replies.length > 0 && (
+            <div className="replies-section">
+              <h3 className="replies-heading">
+                <MessageCircle size={18} /> {message.replies.length} 条回复
+              </h3>
+              <div className="replies-scroll">
+                {message.replies.map((reply, i) => (
+                  <ReplyCard
+                    key={i}
+                    reply={reply}
+                    index={i}
+                    onLike={() => toggleReplyLike(message.id, i)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
-      {message.replies.length > 0 && (
-        <div className="replies-section">
-          <h3 className="replies-heading">
-            <MessageCircle size={18} /> {message.replies.length} 条回复
-          </h3>
-          {message.replies.map((reply, i) => (
-            <ReplyCard
-              key={i}
-              reply={reply}
-              index={i}
-              onLike={() => toggleReplyLike(message.id, i)}
-            />
-          ))}
+          {message.replies.length === 0 && (
+            <div className="no-replies-yet">
+              <MessageCircle size={24} opacity={0.3} />
+              <p>还没有回复，来做第一个回信的人吧</p>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* 右栏：回信框 */}
+        <div className="detail-right">
+          <ReplyForm onSubmitted={handleReplySubmit} />
+        </div>
+      </div>
     </motion.div>
   )
 }
@@ -69,25 +86,18 @@ function LetterDisplay({ message, onLike }: { message: ReturnType<typeof useMess
   return (
     <article className="letter-display paper-card" style={{ '--letter-bar-color': typeColors[message.type] } as React.CSSProperties}>
       <div className="letter-meta">
-        <span
-          className="letter-badge"
-          style={{ color: typeColors[message.type], borderColor: typeColors[message.type] }}
-        >
+        <span className="letter-badge" style={{ color: typeColors[message.type], borderColor: typeColors[message.type] }}>
           {typeLabels[message.type]}
         </span>
         <span className="letter-date">{date}</span>
       </div>
-
       {message.title && <h1 className="letter-title">{message.title}</h1>}
-
       <p className="letter-author">— {message.senderName}</p>
-
       <div className="letter-body">
         {message.content.split('\n').map((line, i) => (
           <p key={i} className="letter-line">{line || ' '}</p>
         ))}
       </div>
-
       <button className="like-btn" onClick={onLike}>
         <Heart size={15} /> {message.likes}
       </button>
@@ -151,48 +161,20 @@ function ReplyForm({ onSubmitted }: { onSubmitted: (name: string, content: strin
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
     >
-      <h3 className="reply-form-title">写回信</h3>
+      <h3 className="reply-form-title">✍ 写回信</h3>
       <form onSubmit={handleSubmit}>
         <div className="reply-type-btns">
-          <button
-            type="button"
-            className="type-btn"
-            style={{
-              borderColor: 'var(--rose)',
-              color: type === 'primary' ? '#fff' : 'var(--rose)',
-              background: type === 'primary' ? 'var(--rose)' : 'transparent',
-            }}
-            onClick={() => setType('primary')}
-          >
-            🌸 小学生
-          </button>
-          <button
-            type="button"
-            className="type-btn"
-            style={{
-              borderColor: 'var(--sky)',
-              color: type === 'college' ? '#fff' : 'var(--sky)',
-              background: type === 'college' ? 'var(--sky)' : 'transparent',
-            }}
-            onClick={() => setType('college')}
-          >
-            🎓 大学生
-          </button>
+          <button type="button" className="type-btn" data-active={type === 'primary'}
+            style={{ borderColor: 'var(--rose)', color: type === 'primary' ? '#fff' : 'var(--rose)', background: type === 'primary' ? 'var(--rose)' : 'transparent' }}
+            onClick={() => setType('primary')}>🌸 小学生</button>
+          <button type="button" className="type-btn" data-active={type === 'college'}
+            style={{ borderColor: 'var(--sky)', color: type === 'college' ? '#fff' : 'var(--sky)', background: type === 'college' ? 'var(--sky)' : 'transparent' }}
+            onClick={() => setType('college')}>🎓 大学生</button>
         </div>
-        <input
-          type="text"
-          className="form-input"
-          placeholder="你的名字"
-          value={name}
-          onChange={e => { setName(e.target.value); setError('') }}
-        />
-        <textarea
-          className="form-textarea"
-          placeholder="写下你的回信……"
-          rows={5}
-          value={content}
-          onChange={e => { setContent(e.target.value); setError('') }}
-        />
+        <input type="text" className="form-input" placeholder="你的名字" value={name}
+          onChange={e => { setName(e.target.value); setError('') }} />
+        <textarea className="form-textarea" placeholder="写下你的回信……" rows={5} value={content}
+          onChange={e => { setContent(e.target.value); setError('') }} />
         {error && <p className="form-error">{error}</p>}
         <button type="submit" className="btn btn-seal" style={{ marginTop: 8, width: '100%', justifyContent: 'center', padding: '14px 24px' }}>
           <Send size={17} /> 寄出回信
@@ -207,9 +189,7 @@ function EmptyDetail() {
     <div style={{ textAlign: 'center', padding: '80px 20px' }}>
       <p style={{ fontSize: '3rem', marginBottom: 16 }}>📭</p>
       <p style={{ color: 'var(--ink-light)', marginBottom: 20 }}>这封信好像走丢了</p>
-      <Link to="/" className="btn btn-outline">
-        <ArrowLeft size={16} /> 返回留言板
-      </Link>
+      <Link to="/" className="btn btn-outline"><ArrowLeft size={16} /> 返回留言板</Link>
     </div>
   )
 }
