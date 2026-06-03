@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import './Decorations.css'
 
@@ -62,164 +62,15 @@ const FLOATERS: FloaterDef[] = [
 
 const PICKED = FLOATERS.sort(() => Math.random() - 0.5).slice(0, 8)
 
-/* === 侧边互动元素 === */
+/* === 心形粒子 === */
 
 interface HeartParticle {
   id: number
   x: number
   y: number
-  fromLeft: boolean
 }
-
-const LEFT_BUDDIES = [
-  { emoji: '💌', top: '6%',  size: 30, bobY: [-3, 3], bobDur: 3.2 },
-  { emoji: '⭐', top: '18%', size: 26, bobY: [3, -3], bobDur: 2.8 },
-  { emoji: '🌸', top: '30%', size: 34, bobY: [-4, 4], bobDur: 3.6 },
-  { emoji: '🍀', top: '44%', size: 28, bobY: [3, -3], bobDur: 3.0 },
-  { emoji: '🌷', top: '58%', size: 32, bobY: [-3, 3], bobDur: 3.4 },
-  { emoji: '💝', top: '72%', size: 26, bobY: [4, -4], bobDur: 2.6 },
-  { emoji: '✨', top: '84%', size: 30, bobY: [-4, 4], bobDur: 3.8 },
-]
-
-const RIGHT_BUDDIES = [
-  { emoji: '🦋', top: '9%',  size: 32, bobY: [3, -3], bobDur: 3.1 },
-  { emoji: '💖', top: '22%', size: 28, bobY: [-3, 3], bobDur: 2.9 },
-  { emoji: '🌟', top: '35%', size: 36, bobY: [4, -4], bobDur: 3.5 },
-  { emoji: '🕊', top: '49%', size: 28, bobY: [-4, 4], bobDur: 3.3 },
-  { emoji: '🌻', top: '63%', size: 34, bobY: [3, -3], bobDur: 2.7 },
-  { emoji: '🍬', top: '76%', size: 26, bobY: [-3, 3], bobDur: 3.7 },
-  { emoji: '💫', top: '88%', size: 30, bobY: [3, -3], bobDur: 2.5 },
-]
 
 let heartId = 0
-
-function SideBuddy({ emoji, top, size, bobY, bobDur, side, onSpawn }: {
-  emoji: string; top: string; size: number; bobY: number[]; bobDur: number; side: 'left' | 'right'; onSpawn: (h: HeartParticle) => void
-}) {
-  const handleClick = (e: React.MouseEvent) => {
-    const el = e.currentTarget as HTMLElement
-    const rect = el.getBoundingClientRect()
-    onSpawn({ id: ++heartId, x: rect.left + rect.width / 2, y: rect.top, fromLeft: side === 'left' })
-  }
-
-  return (
-    <motion.button
-      className={`side-buddy side-buddy-${side}`}
-      style={{ top, fontSize: size }}
-      onClick={handleClick}
-      aria-label="点击互动"
-      animate={{ y: bobY }}
-      transition={{ duration: bobDur, repeat: Infinity, ease: 'easeInOut', repeatType: 'reverse' }}
-      whileHover={{ scale: 1.5, opacity: 1 }}
-      whileTap={{ scale: 0.7 }}
-    >
-      {emoji}
-    </motion.button>
-  )
-}
-
-function SideInteractions({ onSpawn }: { onSpawn: (h: HeartParticle) => void }) {
-  return (
-    <>
-      {LEFT_BUDDIES.map((b, i) => (
-        <SideBuddy key={`L${i}`} {...b} side="left" onSpawn={onSpawn} />
-      ))}
-      {RIGHT_BUDDIES.map((b, i) => (
-        <SideBuddy key={`R${i}`} {...b} side="right" onSpawn={onSpawn} />
-      ))}
-    </>
-  )
-}
-
-/* === 游走小猫 === */
-
-function WanderingCat({ mounted }: { mounted: boolean }) {
-  const [cat, setCat] = useState<{ id: number; fromLeft: boolean } | null>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout>>()
-
-  const scheduleNext = useCallback(() => {
-    const delay = 6000 + Math.random() * 14000
-    timerRef.current = setTimeout(() => {
-      setCat({ id: Date.now(), fromLeft: Math.random() > 0.5 })
-    }, delay)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted) return
-    scheduleNext()
-    return () => clearTimeout(timerRef.current)
-  }, [mounted, scheduleNext])
-
-  const handleComplete = () => {
-    setCat(null)
-    scheduleNext()
-  }
-
-  return (
-    <AnimatePresence>
-      {cat && (
-        <motion.div
-          key={cat.id}
-          className="wandering-cat"
-          initial={{ left: cat.fromLeft ? '-40px' : 'calc(100% + 40px)', bottom: `${8 + Math.random() * 10}%` }}
-          animate={{ left: cat.fromLeft ? 'calc(100% + 40px)' : '-40px' }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 7 + Math.random() * 5, ease: 'linear' }}
-          onAnimationComplete={handleComplete}
-        >
-          <span style={{ transform: cat.fromLeft ? 'scaleX(1)' : 'scaleX(-1)', display: 'inline-block' }}>
-            🐈
-          </span>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  )
-}
-
-/* === 纸飞机 === */
-
-function PaperPlane({ mounted }: { mounted: boolean }) {
-  const [plane, setPlane] = useState<{ id: number } | null>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout>>()
-
-  const scheduleNext = useCallback(() => {
-    const delay = 10000 + Math.random() * 20000
-    timerRef.current = setTimeout(() => {
-      setPlane({ id: Date.now() })
-    }, delay)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted) return
-    scheduleNext()
-    return () => clearTimeout(timerRef.current)
-  }, [mounted, scheduleNext])
-
-  const handleComplete = () => {
-    setPlane(null)
-    scheduleNext()
-  }
-
-  return (
-    <AnimatePresence>
-      {plane && (
-        <motion.div
-          key={plane.id}
-          className="paper-plane"
-          initial={{ left: '-50px', top: `${10 + Math.random() * 35}%`, rotate: -15 }}
-          animate={{ left: 'calc(100% + 50px)', top: `${5 + Math.random() * 25}%`, rotate: 5 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 5 + Math.random() * 4, ease: 'easeInOut' }}
-          onAnimationComplete={handleComplete}
-        >
-          📨
-        </motion.div>
-      )}
-    </AnimatePresence>
-  )
-}
-
-/* === 主组件 === */
 
 export default function Decorations() {
   const [mounted, setMounted] = useState(false)
@@ -233,7 +84,12 @@ export default function Decorations() {
     }
   }, [])
 
-  const spawnHeart = useCallback((h: HeartParticle) => {
+  const spawnHeart = useCallback((e: React.MouseEvent) => {
+    const h: HeartParticle = {
+      id: ++heartId,
+      x: e.clientX,
+      y: e.clientY,
+    }
     setHearts(prev => [...prev.slice(-20), h])
     setTimeout(() => {
       setHearts(prev => prev.filter(p => p.id !== h.id))
@@ -248,20 +104,19 @@ export default function Decorations() {
       {mounted && (
         <>
           {PICKED.map((f, i) => (
-            <motion.div
+            <motion.button
               key={f.emoji + i}
               className="floater"
               style={{
                 left: `${f.startX}%`,
                 top: `${f.startY}%`,
                 fontSize: `${f.scale * 36}px`,
-                lineHeight: 1,
               }}
               initial={{ x: 0, y: 0, opacity: 0.22 }}
               animate={{
                 x: [0, f.dx * 0.5, f.dx, f.dx * 0.6, 0],
                 y: [0, f.dy * 0.5, f.dy, f.dy * 0.6, 0],
-                opacity: [0.22, 0.30, 0.22, 0.28, 0.22],
+                opacity: [0.22, 0.32, 0.22, 0.30, 0.22],
               }}
               transition={{
                 duration: f.dur,
@@ -270,28 +125,23 @@ export default function Decorations() {
                 ease: 'linear',
                 times: [0, 0.25, 0.5, 0.75, 1],
               }}
+              onClick={spawnHeart}
+              whileHover={{ opacity: 0.7 }}
+              whileTap={{ opacity: 0.9 }}
+              aria-label="点击互动"
             >
               {f.emoji}
-            </motion.div>
+            </motion.button>
           ))}
-
-          <SideInteractions onSpawn={spawnHeart} />
-          <WanderingCat mounted={mounted} />
-          <PaperPlane mounted={mounted} />
 
           <AnimatePresence>
             {hearts.map(h => (
               <motion.div
                 key={h.id}
                 className="heart-particle"
-                style={{ left: h.x, top: h.y }}
-                initial={{ opacity: 0.8, scale: 0.3, y: 0, x: 0 }}
-                animate={{
-                  opacity: 0,
-                  scale: 1.5,
-                  y: h.fromLeft ? -70 : -80,
-                  x: h.fromLeft ? 30 : -30,
-                }}
+                style={{ left: h.x - 11, top: h.y - 11 }}
+                initial={{ opacity: 0.8, scale: 0.3, y: 0 }}
+                animate={{ opacity: 0, scale: 1.5, y: -80 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1.4, ease: 'easeOut' }}
               >
