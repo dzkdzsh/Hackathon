@@ -65,41 +65,33 @@ const FLOATERS: FloaterInit[] = [
 /* === 布朗运动漂浮者 === */
 
 function BrownianFloater({ emoji, startX, startY, scale, onClick }: FloaterInit & { onClick: (e: React.MouseEvent) => void }) {
-  const mx = useSpring(0, { stiffness: 0.06, damping: 0.35 })
-  const my = useSpring(0, { stiffness: 0.06, damping: 0.35 })
-  const mr = useSpring(0, { stiffness: 0.04, damping: 0.3 })
+  const mx = useSpring(0, { stiffness: 0.5, damping: 0.2 })
+  const my = useSpring(0, { stiffness: 0.5, damping: 0.2 })
+  const mr = useSpring(0, { stiffness: 0.4, damping: 0.18 })
 
   const vx = useRef(0)
   const vy = useRef(0)
   const vr = useRef(0)
   const tick = useRef(0)
 
-  // 每 0.5s 施加一次随机力，spring 自然平滑
   useAnimationFrame((_, delta) => {
     tick.current += delta
-    const interval = 480 // ms between random impulses
+    const interval = 160
     if (tick.current < interval) return
     tick.current -= interval
 
-    // 随机加速度 + 归家力（越远拉力越强）
-    const homeStrength = 0.015
     const cx = mx.get()
     const cy = my.get()
     const cr = mr.get()
 
-    vx.current += (Math.random() - 0.5) * 22 - cx * homeStrength
-    vy.current += (Math.random() - 0.5) * 18 - cy * homeStrength
-    vr.current += (Math.random() - 0.5) * 14 - cr * homeStrength
+    vx.current += (Math.random() - 0.5) * 140
+    vy.current += (Math.random() - 0.5) * 110
+    vr.current += (Math.random() - 0.5) * 90
 
-    // 阻尼
-    vx.current *= 0.82
-    vy.current *= 0.82
-    vr.current *= 0.82
-
-    // 边界软限制 (max ~80px from origin)
-    if (Math.abs(cx + vx.current) > 75) vx.current *= -0.3
-    if (Math.abs(cy + vy.current) > 60) vy.current *= -0.3
-    if (Math.abs(cr + vr.current) > 28) vr.current *= -0.3
+    // 几乎不衰减，动量持续
+    vx.current *= 0.97
+    vy.current *= 0.97
+    vr.current *= 0.97
 
     mx.set(cx + vx.current)
     my.set(cy + vy.current)
