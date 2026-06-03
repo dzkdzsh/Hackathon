@@ -11,12 +11,31 @@ interface MessagesContextValue {
 
 const MessagesContext = createContext<MessagesContextValue | null>(null)
 
+function migrateData(raw: unknown): Message[] {
+  if (!Array.isArray(raw)) return []
+  return raw.map((item: Record<string, unknown>) => {
+    // if already has replies array, it's new format
+    if (Array.isArray(item.replies)) return item as Message
+    // old format: reply is a single object -> wrap in replies array
+    if (item.reply && typeof item.reply === 'object') {
+      return { ...item, replies: [item.reply], reply: undefined } as Message
+    }
+    // no replies at all
+    return { ...item, replies: [] as Reply[] } as Message
+  })
+}
+
 function loadMessages(): Message[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      const migrated = migrateData(parsed)
+      if (migrated.length > 0) {
+        // write back migrated data immediately
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
+        return migrated
+      }
     }
   } catch {
     // corrupted data, start fresh
