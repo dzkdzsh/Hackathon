@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { motion, AnimatePresence, useSpring, useAnimationFrame } from 'framer-motion'
+import { motion, AnimatePresence, useSpring, useMotionValue, useAnimationFrame } from 'framer-motion'
 import './Decorations.css'
 
 /* === 四角静态 SVG 装饰 === */
@@ -62,11 +62,13 @@ function BrownianFloater({ emoji, scale, onClick }: { emoji: string; scale: numb
 
   const mx = useSpring(0, { stiffness: 0.4, damping: 0.22 })
   const my = useSpring(0, { stiffness: 0.4, damping: 0.22 })
-  const mr = useSpring(0, { stiffness: 0.35, damping: 0.2 })
+  const mr = useMotionValue(0)
 
   const vx = useRef((Math.random() - 0.5) * 4)
   const vy = useRef((Math.random() - 0.5) * 3)
-  const vr = useRef((Math.random() - 0.5) * 2)
+  const rotBase = useRef(Math.random() * 360)
+  const rotSpeed = useRef(20 + Math.random() * 10) // 20-30 deg/s → ~12-18s 周期
+  const rotWobble = useRef(0)
   const elapsed = useRef(0)
 
   const orbA = useRef(35 + Math.random() * 55)
@@ -83,11 +85,15 @@ function BrownianFloater({ emoji, scale, onClick }: { emoji: string; scale: numb
     // 布朗随机力
     vx.current += (Math.random() - 0.5) * 100 * (delta / 160)
     vy.current += (Math.random() - 0.5) * 75 * (delta / 160)
-    vr.current += (Math.random() - 0.5) * 70 * (delta / 160)
+
+    // 旋转：恒定漂移 + 布朗抖动
+    rotWobble.current += (Math.random() - 0.5) * 40 * (delta / 160)
+    rotWobble.current *= 0.9
+    rotBase.current += (rotSpeed.current + rotWobble.current) * (delta * 0.001)
+    mr.set(rotBase.current)
 
     vx.current *= 0.96
     vy.current *= 0.96
-    vr.current *= 0.96
 
     const bx = mx.get()
     const by = my.get()
@@ -100,7 +106,6 @@ function BrownianFloater({ emoji, scale, onClick }: { emoji: string; scale: numb
     const newY = by + vy.current
     mx.set(orbitX + newX)
     my.set(orbitY + newY)
-    mr.set(mr.get() + vr.current)
 
     // 出屏检测：元素完全离开视口
     const sx = pos.x + mx.get()
