@@ -69,7 +69,6 @@
   opacity: 0.55;
 }
 
-/* inner span handles scale — avoids transform conflict with framer-motion */
 .floater-emoji {
   display: inline-block;
   line-height: 1;
@@ -88,12 +87,12 @@
   .floater { display: none; }
 }
 
-/* === Heart particles === */
+/* === Spark particles === */
 
-.heart-particle {
+.spark-particle {
   position: fixed;
   z-index: 10;
-  font-size: 22px;
+  font-size: 24px;
   line-height: 1;
   pointer-events: none;
 }
@@ -131,12 +130,18 @@
   line-height: 1;
   cursor: pointer;
   transform-origin: top center;
-  transition: transform 0.15s;
   user-select: none;
+  animation: chime-idle 6s ease-in-out infinite;
 }
 
 .side-chime:hover .chime-body {
   animation: chime-sway 0.7s ease-in-out infinite;
+}
+
+@keyframes chime-idle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(1.5deg); }
+  75% { transform: rotate(-1.5deg); }
 }
 
 @keyframes chime-sway {
@@ -155,13 +160,19 @@
   font-size: 36px;
   line-height: 1;
   transform-origin: bottom center;
-  transition: transform 0.15s;
   user-select: none;
+  animation: grass-idle 7s ease-in-out infinite;
 }
 
 .side-grass-left:hover .grass-body,
 .side-grass-right:hover .grass-body {
   animation: grass-bend 0.8s ease-in-out infinite;
+}
+
+@keyframes grass-idle {
+  0%, 100% { transform: rotate(0deg) skew(0deg); }
+  30% { transform: rotate(2deg) skew(-0.5deg); }
+  70% { transform: rotate(-2deg) skew(0.5deg); }
 }
 
 @keyframes grass-bend {

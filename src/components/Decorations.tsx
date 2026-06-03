@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { motion, AnimatePresence, useSpring, useAnimationFrame } from 'framer-motion'
 import './Decorations.css'
 
 /* === 四角静态 SVG 装饰 === */
@@ -34,48 +34,110 @@ function CornerDecorations() {
   )
 }
 
-/* === 动态漂浮元素（16个，3x 速度，带旋转） === */
+/* === 漂浮元素池（16 个） === */
 
-interface FloaterDef {
+interface FloaterInit {
   emoji: string
   startX: number
   startY: number
-  dx: number
-  dy: number
   scale: number
-  dur: number
-  delay: number
-  rot: number[]
 }
 
-const FLOATERS: FloaterDef[] = [
-  { emoji: '✏️', startX: 6,  startY: 20, dx: 55, dy: -22, scale: 1.4, dur: 6, delay: 0,   rot: [0, 18, -12, 8, 0] },
-  { emoji: '🎒', startX: 80, startY: 65, dx: -50, dy: -14, scale: 1.5, dur: 7, delay: 1,   rot: [0, -10, 15, -8, 0] },
-  { emoji: '🐱', startX: 70, startY: 12, dx: -40, dy: 35,  scale: 1.3, dur: 5, delay: 2,   rot: [0, -15, 10, -5, 0] },
-  { emoji: '💌', startX: 10, startY: 55, dx: 45, dy: -30, scale: 1.2, dur: 6, delay: 0,    rot: [0, 12, -18, 10, 0] },
-  { emoji: '⭐', startX: 86, startY: 38, dx: -55, dy: 20,  scale: 1.3, dur: 5, delay: 3,   rot: [0, 25, -20, 15, 0] },
-  { emoji: '🌸', startX: 48, startY: 80, dx: 20, dy: -48, scale: 1.2, dur: 7, delay: 1,    rot: [0, 15, -10, 5, 0] },
-  { emoji: '🐦', startX: 28, startY: 8,  dx: 46, dy: 16,  scale: 1.1, dur: 4, delay: 2,   rot: [0, -8, 12, -5, 0] },
-  { emoji: '🌻', startX: 62, startY: 52, dx: -30, dy: -26, scale: 1.4, dur: 7, delay: 0,   rot: [0, -12, 8, -5, 0] },
-  { emoji: '🦋', startX: 18, startY: 42, dx: 35, dy: -18,  scale: 1.1, dur: 4, delay: 3,   rot: [0, 10, -15, 8, 0] },
-  { emoji: '📚', startX: 52, startY: 74, dx: -22, dy: -35, scale: 1.3, dur: 7, delay: 1,   rot: [0, -5, 10, -5, 0] },
-  { emoji: '🍀', startX: 14, startY: 70, dx: 40, dy: -22, scale: 1.2, dur: 5, delay: 2,    rot: [0, 20, -15, 10, 0] },
-  { emoji: '🌷', startX: 74, startY: 28, dx: -38, dy: 14,  scale: 1.3, dur: 6, delay: 0,   rot: [0, -18, 10, -5, 0] },
-  { emoji: '🎵', startX: 38, startY: 14, dx: 30, dy: 22,  scale: 1.1, dur: 5, delay: 3,    rot: [0, 8, -10, 5, 0] },
-  { emoji: '🧸', startX: 58, startY: 68, dx: -24, dy: -28, scale: 1.4, dur: 7, delay: 0,   rot: [0, -15, 8, -5, 0] },
-  { emoji: '🫧', startX: 22, startY: 34, dx: 36, dy: -12,  scale: 1.0, dur: 4, delay: 2,   rot: [0, 5, -8, 5, 0] },
-  { emoji: '🍃', startX: 68, startY: 82, dx: -32, dy: -20, scale: 1.1, dur: 5, delay: 1,   rot: [0, -10, 15, -8, 0] },
+const FLOATERS: FloaterInit[] = [
+  { emoji: '✏️', startX: 6,  startY: 20, scale: 1.4 },
+  { emoji: '🎒', startX: 80, startY: 65, scale: 1.5 },
+  { emoji: '🐱', startX: 70, startY: 12, scale: 1.3 },
+  { emoji: '💌', startX: 10, startY: 55, scale: 1.2 },
+  { emoji: '⭐', startX: 86, startY: 38, scale: 1.3 },
+  { emoji: '🌸', startX: 48, startY: 80, scale: 1.2 },
+  { emoji: '🐦', startX: 28, startY: 8,  scale: 1.1 },
+  { emoji: '🌻', startX: 62, startY: 52, scale: 1.4 },
+  { emoji: '🦋', startX: 18, startY: 42, scale: 1.1 },
+  { emoji: '📚', startX: 52, startY: 74, scale: 1.3 },
+  { emoji: '🍀', startX: 14, startY: 70, scale: 1.2 },
+  { emoji: '🌷', startX: 74, startY: 28, scale: 1.3 },
+  { emoji: '🎵', startX: 38, startY: 14, scale: 1.1 },
+  { emoji: '🧸', startX: 58, startY: 68, scale: 1.4 },
+  { emoji: '🫧', startX: 22, startY: 34, scale: 1.0 },
+  { emoji: '🍃', startX: 68, startY: 82, scale: 1.1 },
 ]
 
-/* === 心形粒子 === */
+/* === 布朗运动漂浮者 === */
 
-interface HeartParticle {
+function BrownianFloater({ emoji, startX, startY, scale, onClick }: FloaterInit & { onClick: (e: React.MouseEvent) => void }) {
+  const mx = useSpring(0, { stiffness: 0.06, damping: 0.35 })
+  const my = useSpring(0, { stiffness: 0.06, damping: 0.35 })
+  const mr = useSpring(0, { stiffness: 0.04, damping: 0.3 })
+
+  const vx = useRef(0)
+  const vy = useRef(0)
+  const vr = useRef(0)
+  const tick = useRef(0)
+
+  // 每 0.5s 施加一次随机力，spring 自然平滑
+  useAnimationFrame((_, delta) => {
+    tick.current += delta
+    const interval = 480 // ms between random impulses
+    if (tick.current < interval) return
+    tick.current -= interval
+
+    // 随机加速度 + 归家力（越远拉力越强）
+    const homeStrength = 0.015
+    const cx = mx.get()
+    const cy = my.get()
+    const cr = mr.get()
+
+    vx.current += (Math.random() - 0.5) * 22 - cx * homeStrength
+    vy.current += (Math.random() - 0.5) * 18 - cy * homeStrength
+    vr.current += (Math.random() - 0.5) * 14 - cr * homeStrength
+
+    // 阻尼
+    vx.current *= 0.82
+    vy.current *= 0.82
+    vr.current *= 0.82
+
+    // 边界软限制 (max ~80px from origin)
+    if (Math.abs(cx + vx.current) > 75) vx.current *= -0.3
+    if (Math.abs(cy + vy.current) > 60) vy.current *= -0.3
+    if (Math.abs(cr + vr.current) > 28) vr.current *= -0.3
+
+    mx.set(cx + vx.current)
+    my.set(cy + vy.current)
+    mr.set(cr + vr.current)
+  })
+
+  return (
+    <motion.button
+      className="floater"
+      style={{
+        left: `${startX}%`,
+        top: `${startY}%`,
+        x: mx,
+        y: my,
+        rotate: mr,
+      }}
+      onClick={onClick}
+      aria-label="点击互动"
+    >
+      <span className="floater-emoji" style={{ fontSize: `${scale * 36}px` }}>
+        {emoji}
+      </span>
+    </motion.button>
+  )
+}
+
+/* === 粒子系统 === */
+
+interface SparkParticle {
   id: number
   x: number
   y: number
+  emoji: string
+  driftX: number
 }
 
-let heartId = 0
+const PARTICLE_POOL = ['💕', '💖', '✨', '💝', '🌟', '🫧', '🎀', '🌷', '🍬', '💫', '🦋', '☁️']
+let sparkId = 0
 
 /* === 害羞小猫 === */
 
@@ -129,7 +191,7 @@ function SideDecorations() {
 
 export default function Decorations() {
   const [mounted, setMounted] = useState(false)
-  const [hearts, setHearts] = useState<HeartParticle[]>([])
+  const [sparks, setSparks] = useState<SparkParticle[]>([])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -139,10 +201,17 @@ export default function Decorations() {
     }
   }, [])
 
-  const spawnHeart = useCallback((e: React.MouseEvent) => {
-    const h: HeartParticle = { id: ++heartId, x: e.clientX, y: e.clientY }
-    setHearts(prev => [...prev.slice(-20), h])
-    setTimeout(() => setHearts(prev => prev.filter(p => p.id !== h.id)), 1500)
+  const spawnSpark = useCallback((e: React.MouseEvent) => {
+    const driftX = (Math.random() - 0.5) * 40
+    const s: SparkParticle = {
+      id: ++sparkId,
+      x: e.clientX,
+      y: e.clientY,
+      emoji: PARTICLE_POOL[Math.floor(Math.random() * PARTICLE_POOL.length)],
+      driftX,
+    }
+    setSparks(prev => [...prev.slice(-20), s])
+    setTimeout(() => setSparks(prev => prev.filter(p => p.id !== s.id)), 1600)
   }, [])
 
   return (
@@ -153,49 +222,23 @@ export default function Decorations() {
       {mounted && (
         <>
           {FLOATERS.map((f, i) => (
-            <motion.button
-              key={`f${i}`}
-              className="floater"
-              style={{
-                left: `${f.startX}%`,
-                top: `${f.startY}%`,
-              }}
-              initial={{ x: 0, y: 0, rotate: f.rot[0] }}
-              animate={{
-                x: [0, f.dx * 0.5, f.dx, f.dx * 0.6, 0],
-                y: [0, f.dy * 0.5, f.dy, f.dy * 0.6, 0],
-                rotate: f.rot,
-              }}
-              transition={{
-                duration: f.dur,
-                delay: f.delay,
-                repeat: Infinity,
-                ease: 'linear',
-                times: [0, 0.25, 0.5, 0.75, 1],
-              }}
-              onClick={spawnHeart}
-              aria-label="点击互动"
-            >
-              <span className="floater-emoji" style={{ fontSize: `${f.scale * 36}px` }}>
-                {f.emoji}
-              </span>
-            </motion.button>
+            <BrownianFloater key={`bf${i}`} {...f} onClick={spawnSpark} />
           ))}
 
           <SideDecorations />
 
           <AnimatePresence>
-            {hearts.map(h => (
+            {sparks.map(s => (
               <motion.div
-                key={h.id}
-                className="heart-particle"
-                style={{ left: h.x - 11, top: h.y - 11 }}
-                initial={{ opacity: 0.8, scale: 0.3, y: 0 }}
-                animate={{ opacity: 0, scale: 1.5, y: -80 }}
+                key={s.id}
+                className="spark-particle"
+                style={{ left: s.x - 12, top: s.y - 12 }}
+                initial={{ opacity: 0.8, scale: 0.3, y: 0, x: 0 }}
+                animate={{ opacity: 0, scale: 1.6, y: -90, x: s.driftX }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 1.4, ease: 'easeOut' }}
+                transition={{ duration: 1.5, ease: 'easeOut' }}
               >
-                {['💕', '💖', '✨', '💝', '🌟'][h.id % 5]}
+                {s.emoji}
               </motion.div>
             ))}
           </AnimatePresence>
