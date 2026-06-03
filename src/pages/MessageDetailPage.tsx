@@ -67,7 +67,7 @@ function LetterDisplay({ message, onLike }: { message: ReturnType<typeof useMess
   })
 
   return (
-    <article className="letter-display paper-card">
+    <article className="letter-display paper-card" style={{ '--letter-bar-color': typeColors[message.type] } as React.CSSProperties}>
       <div className="letter-meta">
         <span
           className="letter-badge"

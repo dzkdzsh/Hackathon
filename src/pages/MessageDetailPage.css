@@ -20,7 +20,34 @@
 }
 
 .letter-display {
-  padding: 36px;
+  padding: 36px 36px 36px 40px;
+  position: relative;
+}
+
+/* 左侧色条 */
+.letter-display::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  border-radius: 8px 0 0 8px;
+  background: var(--letter-bar-color, var(--rose));
+}
+
+/* 信纸折角效果 */
+.letter-display::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 40px 40px 0;
+  border-color: transparent var(--paper) transparent transparent;
+  opacity: 0.5;
 }
 
 .letter-meta {

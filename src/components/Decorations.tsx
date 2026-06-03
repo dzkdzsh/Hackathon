@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import './Decorations.css'
 
@@ -37,9 +37,7 @@ function CornerDecorations() {
 /* === 动态漂浮元素 === */
 
 interface FloaterDef {
-  el: string
   emoji: string
-  color: string
   startX: number
   startY: number
   dx: number
@@ -49,18 +47,20 @@ interface FloaterDef {
   delay: number
 }
 
-// 生成稳定随机值，不随渲染变化
 const FLOATERS: FloaterDef[] = [
-  { el: '✏️', emoji: '✏️', color: 'var(--stamp)', startX: 8, startY: 25, dx: 60, dy: -20, scale: 1.4, dur: 55, delay: 0 },
-  { el: '🎒', emoji: '🎒', color: 'var(--rose)', startX: 85, startY: 70, dx: -55, dy: -15, scale: 1.5, dur: 65, delay: 8 },
-  { el: '🐱', emoji: '🐱', color: 'var(--stamp)', startX: 75, startY: 15, dx: -40, dy: 35, scale: 1.3, dur: 50, delay: 15 },
-  { el: '💌', emoji: '💌', color: 'var(--seal)', startX: 12, startY: 60, dx: 45, dy: -30, scale: 1.2, dur: 60, delay: 4 },
-  { el: '⭐', emoji: '⭐', color: 'var(--stamp)', startX: 90, startY: 40, dx: -60, dy: 20, scale: 1.3, dur: 45, delay: 20 },
-  { el: '🌸', emoji: '🌸', color: 'var(--rose)', startX: 50, startY: 85, dx: 20, dy: -50, scale: 1.2, dur: 70, delay: 2 },
-  { el: '🕊', emoji: '🐦', color: 'var(--sky)', startX: 30, startY: 10, dx: 50, dy: 15, scale: 1.1, dur: 40, delay: 12 },
+  { emoji: '✏️', startX: 8,  startY: 25, dx: 65, dy: -25, scale: 1.4, dur: 30, delay: 0 },
+  { emoji: '🎒', startX: 85, startY: 70, dx: -60, dy: -15, scale: 1.5, dur: 35, delay: 3 },
+  { emoji: '🐱', startX: 75, startY: 15, dx: -45, dy: 40,  scale: 1.3, dur: 28, delay: 6 },
+  { emoji: '💌', startX: 12, startY: 60, dx: 50, dy: -35, scale: 1.2, dur: 32, delay: 1 },
+  { emoji: '⭐', startX: 90, startY: 40, dx: -65, dy: 25,  scale: 1.3, dur: 25, delay: 7 },
+  { emoji: '🌸', startX: 50, startY: 85, dx: 25, dy: -55, scale: 1.2, dur: 38, delay: 2 },
+  { emoji: '🐦', startX: 30, startY: 10, dx: 55, dy: 18,  scale: 1.1, dur: 22, delay: 5 },
+  { emoji: '🌻', startX: 65, startY: 55, dx: -35, dy: -30, scale: 1.4, dur: 33, delay: 4 },
+  { emoji: '🦋', startX: 20, startY: 45, dx: 40, dy: -22,  scale: 1.1, dur: 20, delay: 8 },
+  { emoji: '📚', startX: 55, startY: 78, dx: -28, dy: -40, scale: 1.3, dur: 36, delay: 0 },
 ]
 
-const PICKED = FLOATERS.sort(() => Math.random() - 0.5).slice(0, 5)
+const PICKED = FLOATERS.sort(() => Math.random() - 0.5).slice(0, 8)
 
 export default function Decorations() {
   const [mounted, setMounted] = useState(false)
@@ -68,7 +68,7 @@ export default function Decorations() {
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
     if (!mq.matches) {
-      const t = setTimeout(() => setMounted(true), 300)
+      const t = setTimeout(() => setMounted(true), 200)
       return () => clearTimeout(t)
     }
   }, [])
@@ -78,9 +78,9 @@ export default function Decorations() {
       <CornerDecorations />
       <div className="rainbow-stripe" />
 
-      {mounted && PICKED.map(f => (
+      {mounted && PICKED.map((f, i) => (
         <motion.div
-          key={f.el}
+          key={f.emoji + i}
           className="floater"
           style={{
             left: `${f.startX}%`,
@@ -88,7 +88,7 @@ export default function Decorations() {
             fontSize: `${f.scale * 36}px`,
             lineHeight: 1,
           }}
-          initial={{ x: 0, y: 0, opacity: 0.25 }}
+          initial={{ x: 0, y: 0, opacity: 0.22 }}
           animate={{
             x: [0, f.dx * 0.5, f.dx, f.dx * 0.6, 0],
             y: [0, f.dy * 0.5, f.dy, f.dy * 0.6, 0],

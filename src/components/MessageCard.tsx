@@ -2,17 +2,17 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useMessages } from '../context/MessagesContext'
 import { Message, StudentType } from '../types'
-import { ArrowRight, Heart, MessageCircle, ThumbsUp } from 'lucide-react'
+import { ArrowRight, Heart, MessageCircle } from 'lucide-react'
 import './MessageCard.css'
-
-const typeColors: Record<StudentType, string> = {
-  primary: 'var(--rose)',
-  college: 'var(--sky)',
-}
 
 const typeLabels: Record<StudentType, string> = {
   primary: '🌸 小学生',
   college: '🎓 大学生',
+}
+
+const typeColors: Record<StudentType, string> = {
+  primary: 'var(--rose)',
+  college: 'var(--sky)',
 }
 
 function totalLikes(m: Message) {
@@ -32,11 +32,17 @@ export function MessageCard({ message, index }: { message: Message; index: numbe
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: Math.min(index * 0.06, 0.3) }}
     >
-      <Link to={`/message/${message.id}`} className="message-card">
-        <div className="card-accent" style={{ backgroundColor: color }} />
+      <Link
+        to={`/message/${message.id}`}
+        className="message-card"
+        style={{ '--bar-color': color } as React.CSSProperties}
+      >
+        {/* 信封折角 */}
+        <div className="card-fold" />
+        <div className="card-fold-inner" />
 
         <div className="card-header">
-          <span className="card-badge" style={{ color, borderColor: color }}>
+          <span className="card-badge" style={{ background: color }}>
             {typeLabels[message.type]}
           </span>
           {message.replies.length > 0 && (
@@ -56,9 +62,9 @@ export function MessageCard({ message, index }: { message: Message; index: numbe
           <span className="card-sender">— {message.senderName}</span>
           <div className="card-actions" onClick={e => { e.preventDefault(); toggleLike(message.id) }}>
             <button className="like-btn-card">
-              <Heart size={14} /> {totalLikes(message)}
+              <Heart size={13} /> {totalLikes(message)}
             </button>
-            <ArrowRight className="card-arrow" size={16} />
+            <ArrowRight className="card-arrow" size={15} />
           </div>
         </div>
       </Link>
