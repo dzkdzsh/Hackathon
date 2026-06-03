@@ -58,12 +58,73 @@
   pointer-events: none;
 }
 
-@media (max-width: 768px) {
-  .floater-pencil,
-  .floater-backpack,
-  .floater-cat { display: none; }
-}
-
 @media (max-width: 500px) {
   .floater { display: none; }
+}
+
+/* === Side interactive buddies === */
+
+.side-buddy {
+  position: fixed;
+  z-index: 2;
+  background: none;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.22;
+  pointer-events: auto;
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.side-buddy-left {
+  left: 6px;
+}
+
+.side-buddy-right {
+  right: 6px;
+}
+
+@media (max-width: 900px) {
+  .side-buddy {
+    display: none;
+  }
+}
+
+/* === Heart particles === */
+
+.heart-particle {
+  position: fixed;
+  z-index: 10;
+  font-size: 22px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* === Wandering cat === */
+
+.wandering-cat {
+  position: fixed;
+  z-index: 3;
+  font-size: 34px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .wandering-cat { display: none; }
+}
+
+/* === Paper plane === */
+
+.paper-plane {
+  position: fixed;
+  z-index: 3;
+  font-size: 36px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .paper-plane { display: none; }
 }
