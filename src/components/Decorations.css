@@ -1,0 +1,69 @@
+/* === Decorations Layer === */
+
+.decorations-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* === Top Rainbow Stripe === */
+
+.rainbow-stripe {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 101;
+  background: linear-gradient(90deg,
+    var(--rose),
+    var(--stamp),
+    var(--envelope),
+    var(--sky),
+    var(--rose)
+  );
+  background-size: 200% 100%;
+  animation: stripe-shift 12s ease-in-out infinite;
+}
+
+@keyframes stripe-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* === Corner Decorations === */
+
+.corner {
+  position: fixed;
+  z-index: 1;
+  opacity: 0.5;
+}
+
+.corner-tl { top: 56px; left: 12px; }
+.corner-tr { top: 60px; right: 12px; }
+.corner-bl { bottom: 20px; left: 10px; }
+.corner-br { bottom: 20px; right: 14px; }
+
+@media (max-width: 900px) {
+  .corner { display: none; }
+}
+
+/* === Floaters === */
+
+.floater {
+  position: fixed;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .floater-pencil,
+  .floater-backpack,
+  .floater-cat { display: none; }
+}
+
+@media (max-width: 500px) {
+  .floater { display: none; }
+}

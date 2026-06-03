@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { MessagesProvider } from './context/MessagesContext'
+import Decorations from './components/Decorations'
 import Layout from './Layout'
 import HomePage from './pages/HomePage'
 import WritePage from './pages/WritePage'
@@ -10,6 +11,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <MessagesProvider>
+        <Decorations />
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />

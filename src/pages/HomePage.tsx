@@ -81,7 +81,14 @@ function EmptyState({ filter }: { filter: FilterOption }) {
   }
   return (
     <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink-light)' }}>
-      <div style={{ fontSize: '3.5rem', marginBottom: 16 }}>💌</div>
+      <svg width="100" height="80" viewBox="0 0 100 80" fill="none" style={{ margin: '0 auto 20px', opacity: 0.5 }}>
+        <rect x="15" y="20" width="68" height="44" rx="5" stroke="var(--stamp)" strokeWidth="2" strokeDasharray="4 3" fill="none"/>
+        <path d="M15 20L50 48L85 20" stroke="var(--stamp)" strokeWidth="2" opacity="0.6"/>
+        <path d="M42 38L20 55" stroke="var(--stamp)" strokeWidth="1.5" opacity="0.3"/>
+        <path d="M58 38L80 55" stroke="var(--stamp)" strokeWidth="1.5" opacity="0.3"/>
+        <circle cx="72" cy="30" r="6" fill="var(--seal)" opacity="0.35"/>
+        <path d="M44 30L42 34L40 32" stroke="var(--ink)" strokeWidth="1" opacity="0.3"/>
+      </svg>
       <p style={{ fontSize: '1.1rem', marginBottom: 8 }}>
         {messages[filter] || messages.default}
       </p>

@@ -13,6 +13,8 @@
   --seal-hover: #A83A40;
   --shadow: rgba(74, 55, 40, 0.08);
   --shadow-lg: rgba(74, 55, 40, 0.14);
+  --peach: #FDE8D0;
+  --sky-light: #E8F4F8;
 }
 
 /* === Reset === */
@@ -31,24 +33,70 @@ html {
 
 body {
   font-family: 'Georgia', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
-  background-color: var(--paper);
   color: var(--ink);
   line-height: 1.8;
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+
+  /* 暖色渐变背景：中心奶油白 → 淡桃色 → 边缘淡蓝 */
+  background:
+    radial-gradient(ellipse 1200px 800px at 50% 20%, rgba(232, 160, 191, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 900px 600px at 80% 80%, rgba(123, 184, 212, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 700px 500px at 20% 60%, rgba(253, 232, 208, 0.12) 0%, transparent 60%),
+    linear-gradient(175deg, #FFFDF7 0%, #FEF9F3 30%, #FDF6EF 60%, #FEF9F6 100%);
+
+  /* 隐约定纸文字纹理 - 横线 + 细碎纤维点 */
   background-image:
+    /* 横线纹理 */
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 27px,
-      rgba(74, 55, 40, 0.03) 27px,
-      rgba(74, 55, 40, 0.03) 28px
-    );
+      rgba(74, 55, 40, 0.04) 27px,
+      rgba(74, 55, 40, 0.04) 28px
+    ),
+    /* 纸张纤维纹理 */
+    radial-gradient(
+      ellipse 600px 400px at 30% 15%,
+      rgba(74, 55, 40, 0.015) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 400px 300px at 70% 50%,
+      rgba(74, 55, 40, 0.01) 0%,
+      transparent 60%
+    ),
+    /* 主渐变 */
+    radial-gradient(ellipse 1200px 800px at 50% 20%, rgba(232, 160, 191, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 900px 600px at 80% 80%, rgba(123, 184, 212, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 700px 500px at 20% 60%, rgba(253, 232, 208, 0.12) 0%, transparent 60%),
+    linear-gradient(175deg, #FFFDF7 0%, #FEF9F3 30%, #FDF6EF 60%, #FEF9F6 100%);
+}
+
+/* 信纸折痕 - 两条淡淡的交叉线 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(178deg, transparent 49.85%, rgba(74, 55, 40, 0.025) 49.85%, rgba(74, 55, 40, 0.025) 50.15%, transparent 50.15%),
+    linear-gradient(92deg, transparent 49.85%, rgba(74, 55, 40, 0.02) 49.85%, rgba(74, 55, 40, 0.02) 50.15%, transparent 50.15%);
 }
 
 #root {
+  position: relative;
+  z-index: 1;
   max-width: 800px;
   margin: 0 auto;
   padding: 0 16px;
+  /* 做旧边缘 - 内阴影 */
+  box-shadow:
+    inset 0 0 80px 40px rgba(74, 55, 40, 0.03),
+    inset 0 0 20px rgba(74, 55, 40, 0.02);
+  min-height: 100vh;
 }
 
 /* === Typography === */
@@ -58,14 +106,8 @@ h1, h2, h3, h4 {
   letter-spacing: 0.02em;
 }
 
-a {
-  color: var(--seal);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
+a { color: var(--seal); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
 /* === Utility === */
 .container {
@@ -75,9 +117,16 @@ a:hover {
 .paper-card {
   background: var(--paper);
   border-radius: 10px;
-  box-shadow:
-    0 1px 3px var(--shadow),
-    0 4px 12px var(--shadow);
+  box-shadow: 0 1px 3px var(--shadow), 0 4px 12px var(--shadow);
   padding: 24px;
   border: 1px solid rgba(74, 55, 40, 0.06);
+}
+
+/* === Reduced motion === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
