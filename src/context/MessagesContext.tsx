@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { Message, Reply } from '../types'
 
 const STORAGE_KEY = 'xinxinxin_messages'
+const VERSION_KEY = 'xinxinxin_version'
+const DATA_VERSION = 2
 
 interface MessagesContextValue {
   messages: Message[]
@@ -39,19 +41,25 @@ function migrateData(raw: unknown): Message[] {
 
 function loadMessages(): Message[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      const migrated = migrateData(parsed)
-      if (migrated.length > 0) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
-        return migrated
+    const storedVersion = localStorage.getItem(VERSION_KEY)
+    if (storedVersion === String(DATA_VERSION)) {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        const migrated = migrateData(parsed)
+        if (migrated.length > 0) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
+          return migrated
+        }
       }
     }
   } catch {
     // corrupted data, start fresh
   }
-  return seedMessages()
+  const seeded = seedMessages()
+  localStorage.setItem(VERSION_KEY, String(DATA_VERSION))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded))
+  return seeded
 }
 
 function rnd(n: number) { return Math.floor(Math.random() * n) + 1 }
@@ -356,6 +364,7 @@ function seedMessages(): Message[] {
 
 function saveMessages(messages: Message[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(messages))
+  localStorage.setItem(VERSION_KEY, String(DATA_VERSION))
 }
 
 export function MessagesProvider({ children }: { children: ReactNode }) {
