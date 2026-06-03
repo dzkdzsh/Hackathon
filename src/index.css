@@ -29,6 +29,7 @@
 html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+  background-color: var(--paper);
 }
 
 body {
@@ -38,40 +39,55 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  background-color: var(--paper);
 
-  /* 暖色渐变背景：中心奶油白 → 淡桃色 → 边缘淡蓝 */
-  background:
-    radial-gradient(ellipse 1200px 800px at 50% 20%, rgba(232, 160, 191, 0.06) 0%, transparent 70%),
-    radial-gradient(ellipse 900px 600px at 80% 80%, rgba(123, 184, 212, 0.05) 0%, transparent 70%),
-    radial-gradient(ellipse 700px 500px at 20% 60%, rgba(253, 232, 208, 0.12) 0%, transparent 60%),
-    linear-gradient(175deg, #FFFDF7 0%, #FEF9F3 30%, #FDF6EF 60%, #FEF9F6 100%);
-
-  /* 隐约定纸文字纹理 - 横线 + 细碎纤维点 */
+  /* 暖色渐变：中心奶油白 → 淡桃色 → 边缘淡蓝 */
   background-image:
     /* 横线纹理 */
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 27px,
-      rgba(74, 55, 40, 0.04) 27px,
-      rgba(74, 55, 40, 0.04) 28px
+      rgba(74, 55, 40, 0.05) 27px,
+      rgba(74, 55, 40, 0.05) 28px
     ),
-    /* 纸张纤维纹理 */
+    /* 纸张纤维 */
     radial-gradient(
       ellipse 600px 400px at 30% 15%,
-      rgba(74, 55, 40, 0.015) 0%,
+      rgba(74, 55, 40, 0.025) 0%,
       transparent 70%
     ),
     radial-gradient(
       ellipse 400px 300px at 70% 50%,
-      rgba(74, 55, 40, 0.01) 0%,
+      rgba(74, 55, 40, 0.018) 0%,
       transparent 60%
     ),
-    /* 主渐变 */
-    radial-gradient(ellipse 1200px 800px at 50% 20%, rgba(232, 160, 191, 0.06) 0%, transparent 70%),
-    radial-gradient(ellipse 900px 600px at 80% 80%, rgba(123, 184, 212, 0.05) 0%, transparent 70%),
-    radial-gradient(ellipse 700px 500px at 20% 60%, rgba(253, 232, 208, 0.12) 0%, transparent 60%),
-    linear-gradient(175deg, #FFFDF7 0%, #FEF9F3 30%, #FDF6EF 60%, #FEF9F6 100%);
+    /* 顶部桃粉色光晕 */
+    radial-gradient(
+      ellipse 1000px 600px at 50% 15%,
+      rgba(232, 160, 191, 0.14) 0%,
+      transparent 65%
+    ),
+    /* 右下蓝调光晕 */
+    radial-gradient(
+      ellipse 800px 500px at 85% 75%,
+      rgba(123, 184, 212, 0.10) 0%,
+      transparent 65%
+    ),
+    /* 左下暖桃光晕 */
+    radial-gradient(
+      ellipse 600px 400px at 15% 55%,
+      rgba(253, 232, 208, 0.18) 0%,
+      transparent 60%
+    ),
+    /* 整体微暖渐变底 */
+    linear-gradient(
+      175deg,
+      #FFFDF7 0%,
+      #FEF9F3 25%,
+      #FDF6EE 55%,
+      #FEFAF6 100%
+    );
 }
 
 /* 信纸折痕 - 两条淡淡的交叉线 */

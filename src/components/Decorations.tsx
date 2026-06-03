@@ -61,8 +61,8 @@ function randomFloaters(count: number): Floater[] {
     el,
     startX: Math.random() * 90,
     startY: Math.random() * 85,
-    duration: 70 + Math.random() * 60,
-    delay: Math.random() * 30,
+    duration: 40 + Math.random() * 40,
+    delay: Math.random() * 5,
     size: 28 + Math.random() * 20,
   }))
 }
@@ -163,7 +163,7 @@ export default function Decorations() {
             animate={{
               x: [`${0}vw`, `${midX - f.startX}vw`, `${(Math.random() - 0.5) * 20}vw`],
               y: [`${0}vh`, `${midY - f.startY}vh`, `${(Math.random() - 0.5) * 15}vh`],
-              opacity: [0, 0.12, 0.08, 0.12, 0],
+              opacity: [0.10, 0.16, 0.10, 0.14, 0.08],
               rotate: [0, 5, -4, 3, 0],
             }}
             transition={{
